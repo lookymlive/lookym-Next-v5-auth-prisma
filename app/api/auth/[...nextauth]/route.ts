@@ -1,27 +1,24 @@
-// lib/auth.ts
-import { AuthOptions } from "next-auth"
+import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import InstagramProvider from "next-auth/providers/instagram"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import prisma from "@prisma/client"
+import prisma from "@/lib/prisma"
 
-export const authOptions: AuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     InstagramProvider({
-      clientId: process.env.INSTAGRAM_CLIENT_ID!,
-      clientSecret: process.env.INSTAGRAM_CLIENT_SECRET!,
+      clientId: process.env.INSTAGRAM_CLIENT_ID,
+      clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
     }),
   ],
   callbacks: {
     async session({ session, user }) {
-      if (session.user) {
-        session.user.role = user.role;
-      }
+      session.user.role = user.role;
       return session;
     },
   },
@@ -29,3 +26,6 @@ export const authOptions: AuthOptions = {
     signIn: '/auth/signin',
   },
 }
+
+const handler = NextAuth(authOptions)
+export { handler as GET, handler as POST }

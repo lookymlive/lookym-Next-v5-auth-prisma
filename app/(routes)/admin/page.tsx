@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route" // nextauth
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
@@ -9,6 +9,7 @@ export default async function AdminPage() {
   if (!session || session.user.role !== "admin") {
     redirect('/signin')
   }
+
   return (
     <div className="p-8 bg-gray-900 text-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-purple-400">Panel de Administración de Lookym</h1>
