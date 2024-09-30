@@ -1,22 +1,34 @@
 'use client'
 
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+
+import { signIn, signOut, useSession } from 'next-auth/react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { Instagram, Mail, Play } from "lucide-react"
+import { Play } from 'lucide-react'
+import { FaInstagram } from 'react-icons/fa';
+
+
 
 export function AuthForm() {
-  const [isLogin, setIsLogin] = useState(true)
+  const { data: session, status } = useSession()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    // Implementar lógica de inicio de sesión/registro
+  const handleLogout = async () => {
+    await signOut()
   }
-
+  if (status === 'loading') {
+    return <div>Loading...</div>
+  }
+  if (session) {
+    return (
+      <div>
+        <p>Bienvenido, {session.user?.name}</p>
+        <Button onClick={handleLogout}>Cerrar Sesión</Button>
+      </div>
+    )
+  }
   return (
     <Card className="w-[400px] bg-gray-800 border-gray-700">
       <CardHeader className="text-center">
@@ -33,11 +45,14 @@ export function AuthForm() {
       <CardContent>
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login" onClick={() => setIsLogin(true)}>Iniciar Sesión</TabsTrigger>
-            <TabsTrigger value="register" onClick={() => setIsLogin(false)}>Registrarse</TabsTrigger>
+            <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
+            <TabsTrigger value="register">Registrarse</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              // Add your login logic here
+            }} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" placeholder="tu@email.com" type="email" required />
@@ -52,7 +67,10 @@ export function AuthForm() {
             </form>
           </TabsContent>
           <TabsContent value="register">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              // Add your registration logic here
+            }} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Nombre de Usuario</Label>
                 <Input id="username" placeholder="usuario123" required />
@@ -81,10 +99,11 @@ export function AuthForm() {
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
         <Button variant="outline" className="w-full text-gray-300 border-gray-600 hover:bg-gray-700" onClick={() => signIn('google')}>
-          <Mail className="mr-2 h-4 w-4" /> Continuar con Google
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          Continuar con Google
         </Button>
         <Button variant="outline" className="w-full text-gray-300 border-gray-600 hover:bg-gray-700" onClick={() => signIn('instagram')}>
-          <Instagram className="mr-2 h-4 w-4" /> Continuar con Instagram
+          <FaInstagram className="mr-2 h-4 w-4" /> Continuar con Instagram
         </Button>
       </CardFooter>
     </Card>
